@@ -4,3 +4,10 @@ services:
     ports:
       - "2347:80"
     restart: unless-stopped
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300 recipe-cards
+    restart: unless-stopped
