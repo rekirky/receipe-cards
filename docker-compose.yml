@@ -1,0 +1,9 @@
+services:
+  recipe-cards:
+    build: .
+    ports:
+      - "2347:80"
+    restart: unless-stopped
+    # Optional: uncomment and set to your Unraid server's timezone
+    # environment:
+    #   - TZ=Australia/Melbourne
