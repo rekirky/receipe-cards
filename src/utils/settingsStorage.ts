@@ -11,6 +11,7 @@ export interface AppSettings {
   bgColour: string
   logoBase64: string | null
   categories: CategoryDef[]
+  printerFriendly: boolean
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -18,6 +19,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   bgColour: '#1c1917',
   logoBase64: null,
   categories: Object.entries(CATEGORY_LABELS).map(([id, label]) => ({ id, label })),
+  printerFriendly: false,
 }
 
 const KEY = 'rcards-settings-v1'

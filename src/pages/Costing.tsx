@@ -91,7 +91,7 @@ export default function Costing() {
   async function handleExportPDF() {
     setPdfLoading(true)
     try {
-      const blob = await pdf(<CostingPdfDocument session={state} themeColour={settings.themeColour} />).toBlob()
+      const blob = await pdf(<CostingPdfDocument session={state} themeColour={settings.themeColour} printerFriendly={settings.printerFriendly} />).toBlob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url

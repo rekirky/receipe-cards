@@ -1,44 +1,50 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import type { Recipe } from '../../types'
 
-const CHARCOAL_DARK = '#1c1917'
-const CHARCOAL_MID = '#44403c'
-const CHARCOAL_LIGHT = '#78716c'
-const WHITE = '#ffffff'
-const OFF_WHITE = '#f5f5f4'
+function makeStyles(ember: string, print: boolean) {
+  const bg        = print ? '#ffffff' : '#1c1917'
+  const headerBg  = print ? '#f3f4f6' : '#0c0a09'
+  const accent    = print ? '#111111' : ember
+  const pillBg    = print ? '#111111' : ember
+  const pillText  = '#ffffff'
+  const heading   = print ? '#111111' : '#ffffff'
+  const subText   = print ? '#374151' : '#a8a29e'
+  const bodyText  = print ? '#374151' : '#d6d3d1'
+  const mutedText = print ? '#6b7280' : '#78716c'
+  const rowBorder = print ? '#d1d5db' : '#44403c'
+  const storeBg   = print ? '#f3f4f6' : '#44403c'
 
-function makeStyles(ember: string) {
   return StyleSheet.create({
-    page: { backgroundColor: CHARCOAL_DARK, fontFamily: 'Helvetica', padding: 0 },
+    page: { backgroundColor: bg, fontFamily: 'Helvetica', padding: 0 },
     headerBand: {
-      backgroundColor: '#0c0a09',
+      backgroundColor: headerBg,
       paddingHorizontal: 40, paddingTop: 36, paddingBottom: 24,
-      borderBottomWidth: 3, borderBottomColor: ember,
+      borderBottomWidth: 3, borderBottomColor: accent,
     },
     categoryPill: {
-      backgroundColor: ember, borderRadius: 10,
+      backgroundColor: pillBg, borderRadius: 10,
       paddingHorizontal: 8, paddingVertical: 3,
       alignSelf: 'flex-start', marginBottom: 8,
     },
-    categoryText: { color: WHITE, fontSize: 7, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' },
-    recipeName: { color: WHITE, fontSize: 32, fontWeight: 700, letterSpacing: 2, marginBottom: 4 },
-    tagline: { color: '#a8a29e', fontSize: 11, fontStyle: 'italic' },
+    categoryText: { color: pillText, fontSize: 7, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' },
+    recipeName: { color: heading, fontSize: 32, fontWeight: 700, letterSpacing: 2, marginBottom: 4 },
+    tagline: { color: subText, fontSize: 11, fontStyle: 'italic' },
     body: { paddingHorizontal: 40, paddingVertical: 28, flexDirection: 'row', gap: 24 },
     leftCol: { flex: 2 },
-    sectionLabel: { color: ember, fontSize: 7, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 },
-    description: { color: '#d6d3d1', fontSize: 10, lineHeight: 1.6, marginBottom: 20 },
-    storageBox: { backgroundColor: CHARCOAL_MID, borderRadius: 6, padding: 10, marginTop: 4 },
-    storageText: { color: '#d6d3d1', fontSize: 9, lineHeight: 1.5 },
+    sectionLabel: { color: accent, fontSize: 7, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 },
+    description: { color: bodyText, fontSize: 10, lineHeight: 1.6, marginBottom: 20 },
+    storageBox: { backgroundColor: storeBg, borderRadius: 6, padding: 10, marginTop: 4 },
+    storageText: { color: bodyText, fontSize: 9, lineHeight: 1.5 },
     yieldRow: { flexDirection: 'row', alignItems: 'center', marginTop: 16 },
-    yieldLabel: { color: CHARCOAL_LIGHT, fontSize: 8, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginRight: 6 },
-    yieldValue: { color: ember, fontSize: 11, fontWeight: 700 },
+    yieldLabel: { color: mutedText, fontSize: 8, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginRight: 6 },
+    yieldValue: { color: accent, fontSize: 11, fontWeight: 700 },
     rightCol: { flex: 3 },
-    ingredientRow: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: CHARCOAL_MID, paddingVertical: 7 },
-    ingredientName: { flex: 1, color: OFF_WHITE, fontSize: 10 },
-    ingredientNotes: { flex: 1, color: CHARCOAL_LIGHT, fontSize: 8, fontStyle: 'italic' },
-    ingredientAmount: { color: ember, fontSize: 10, fontWeight: 700, fontFamily: 'Helvetica-Bold', minWidth: 50, textAlign: 'right' },
+    ingredientRow: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: rowBorder, paddingVertical: 7 },
+    ingredientName: { flex: 1, color: heading, fontSize: 10 },
+    ingredientNotes: { flex: 1, color: mutedText, fontSize: 8, fontStyle: 'italic' },
+    ingredientAmount: { color: accent, fontSize: 10, fontWeight: 700, fontFamily: 'Helvetica-Bold', minWidth: 50, textAlign: 'right' },
     footer: { marginTop: 'auto', paddingHorizontal: 40, paddingBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    footerText: { color: CHARCOAL_LIGHT, fontSize: 7 },
+    footerText: { color: mutedText, fontSize: 7 },
   })
 }
 
@@ -46,10 +52,11 @@ interface Props {
   recipe: Recipe
   themeColour: string
   categoryLabel: string
+  printerFriendly?: boolean
 }
 
-export default function RecipeCardPDF({ recipe, themeColour, categoryLabel }: Props) {
-  const styles = makeStyles(themeColour)
+export default function RecipeCardPDF({ recipe, themeColour, categoryLabel, printerFriendly = false }: Props) {
+  const styles = makeStyles(themeColour, printerFriendly)
 
   return (
     <Document title={recipe.name} author="Recipe Cards">

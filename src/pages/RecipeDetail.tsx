@@ -11,11 +11,11 @@ export default function RecipeDetail() {
   const { categoryLabels, settings } = useSettings()
 
   const [instance, updateInstance] = usePDF({
-    document: recipe ? <RecipeCardPDF recipe={recipe} themeColour={settings.themeColour} categoryLabel={categoryLabels[recipe.category] ?? recipe.category} /> : <></>,
+    document: recipe ? <RecipeCardPDF recipe={recipe} themeColour={settings.themeColour} categoryLabel={categoryLabels[recipe.category] ?? recipe.category} printerFriendly={settings.printerFriendly} /> : <></>,
   })
 
   useEffect(() => {
-    if (recipe) updateInstance(<RecipeCardPDF recipe={recipe} themeColour={settings.themeColour} categoryLabel={categoryLabels[recipe.category] ?? recipe.category} />)
+    if (recipe) updateInstance(<RecipeCardPDF recipe={recipe} themeColour={settings.themeColour} categoryLabel={categoryLabels[recipe.category] ?? recipe.category} printerFriendly={settings.printerFriendly} />)
   }, [recipe?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!recipe) {

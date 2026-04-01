@@ -40,6 +40,7 @@ export default function Admin() {
 
       <LogoSection />
       <ColourSection />
+      <PDFSection />
       <CategorySection />
     </div>
   )
@@ -172,6 +173,39 @@ function ColourSection() {
           </button>
         </div>
       </div>
+    </Section>
+  )
+}
+
+// ── PDF ───────────────────────────────────────────────────────────────────────
+
+function PDFSection() {
+  const { settings, updateSettings } = useSettings()
+
+  return (
+    <Section title="PDF OPTIONS">
+      <label className="flex items-center justify-between gap-4 cursor-pointer select-none">
+        <div>
+          <p className="text-charcoal-100 font-medium">Printer Friendly PDFs</p>
+          <p className="text-charcoal-400 text-sm mt-0.5">
+            Outputs PDFs with a white background and greyscale text — ideal for printing.
+          </p>
+        </div>
+        <button
+          role="switch"
+          aria-checked={settings.printerFriendly}
+          onClick={() => updateSettings({ printerFriendly: !settings.printerFriendly })}
+          className={`relative shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ember-500 focus:ring-offset-2 focus:ring-offset-charcoal-700 ${
+            settings.printerFriendly ? 'bg-ember-600' : 'bg-charcoal-500'
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+              settings.printerFriendly ? 'translate-x-5' : 'translate-x-0'
+            }`}
+          />
+        </button>
+      </label>
     </Section>
   )
 }
