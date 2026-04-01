@@ -233,78 +233,95 @@ export default function RecipeEditor() {
           <h2 className="font-display text-xl text-ember-400 tracking-wider mb-4">INGREDIENTS</h2>
           {errors.ingredients && <p className={`${errorClass} mb-3`}>{errors.ingredients}</p>}
 
-          <div className="space-y-2 mb-4">
+          {/* Column headers */}
+          <div className="hidden sm:grid sm:grid-cols-[1fr_7rem_9rem_1fr_2.5rem] gap-2 mb-1 px-1">
+            <span className={labelClass}>Ingredient Name</span>
+            <span className={labelClass}>Amount</span>
+            <span className={labelClass}>Unit</span>
+            <span className={labelClass}>Notes (optional)</span>
+            <span />
+          </div>
+
+          <div className="space-y-3 mb-4">
             {ingredients.map((ing, idx) => (
-              <div key={ing._key} className="flex items-start gap-2 group">
-                {/* Reorder */}
-                <div className="flex flex-col gap-0.5 pt-2.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => moveIngredient(ing._key, -1)}
-                    disabled={idx === 0}
-                    className="text-charcoal-500 hover:text-charcoal-300 disabled:opacity-20 p-0.5"
-                    aria-label="Move up"
+              <div key={ing._key} className="group">
+                {/* Desktop: single grid row */}
+                <div className="hidden sm:grid sm:grid-cols-[1fr_7rem_9rem_1fr_2.5rem] gap-2 items-center">
+                  <input
+                    type="text"
+                    placeholder="e.g. Smoked paprika"
+                    value={ing.name}
+                    onChange={(e) => updateIngredient(ing._key, 'name', e.target.value)}
+                    className={inputClass}
+                  />
+                  <input
+                    type="number"
+                    placeholder="0"
+                    min="0"
+                    step="any"
+                    value={ing.amount || ''}
+                    onChange={(e) => updateIngredient(ing._key, 'amount', parseFloat(e.target.value) || 0)}
+                    className={inputClass}
+                  />
+                  <select
+                    value={ing.unit}
+                    onChange={(e) => updateIngredient(ing._key, 'unit', e.target.value as WeightUnit)}
+                    className={inputClass}
                   >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
-                  </button>
-                  <button
-                    onClick={() => moveIngredient(ing._key, 1)}
-                    disabled={idx === ingredients.length - 1}
-                    className="text-charcoal-500 hover:text-charcoal-300 disabled:opacity-20 p-0.5"
-                    aria-label="Move down"
-                  >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                  </button>
+                    {UNIT_OPTIONS.map((u) => (
+                      <option key={u.value} value={u.value}>{u.label}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="e.g. finely ground"
+                    value={ing.notes ?? ''}
+                    onChange={(e) => updateIngredient(ing._key, 'notes', e.target.value)}
+                    className={inputClass}
+                  />
+                  <div className="flex flex-col items-center gap-0.5">
+                    <button onClick={() => moveIngredient(ing._key, -1)} disabled={idx === 0} className="text-charcoal-500 hover:text-charcoal-300 disabled:opacity-20 p-1" aria-label="Move up">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+                    </button>
+                    <button onClick={() => removeIngredient(ing._key)} disabled={ingredients.length === 1} className="text-charcoal-500 hover:text-red-400 disabled:opacity-20 transition-colors p-1" aria-label="Remove ingredient">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                    <button onClick={() => moveIngredient(ing._key, 1)} disabled={idx === ingredients.length - 1} className="text-charcoal-500 hover:text-charcoal-300 disabled:opacity-20 p-1" aria-label="Move down">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                  </div>
                 </div>
 
-                {/* Ingredient name */}
-                <input
-                  type="text"
-                  placeholder="Ingredient name"
-                  value={ing.name}
-                  onChange={(e) => updateIngredient(ing._key, 'name', e.target.value)}
-                  className={`${inputClass} flex-1`}
-                />
-
-                {/* Amount */}
-                <input
-                  type="number"
-                  placeholder="0"
-                  min="0"
-                  step="any"
-                  value={ing.amount || ''}
-                  onChange={(e) => updateIngredient(ing._key, 'amount', parseFloat(e.target.value) || 0)}
-                  className={`${inputClass} w-24`}
-                />
-
-                {/* Unit */}
-                <select
-                  value={ing.unit}
-                  onChange={(e) => updateIngredient(ing._key, 'unit', e.target.value as WeightUnit)}
-                  className={`${inputClass} w-28`}
-                >
-                  {UNIT_OPTIONS.map((u) => (
-                    <option key={u.value} value={u.value}>{u.label}</option>
-                  ))}
-                </select>
-
-                {/* Notes */}
-                <input
-                  type="text"
-                  placeholder="Notes (optional)"
-                  value={ing.notes ?? ''}
-                  onChange={(e) => updateIngredient(ing._key, 'notes', e.target.value)}
-                  className={`${inputClass} flex-1`}
-                />
-
-                {/* Remove */}
-                <button
-                  onClick={() => removeIngredient(ing._key)}
-                  disabled={ingredients.length === 1}
-                  className="mt-2.5 text-charcoal-500 hover:text-red-400 disabled:opacity-20 transition-colors shrink-0"
-                  aria-label="Remove ingredient"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
+                {/* Mobile: stacked layout */}
+                <div className="sm:hidden bg-charcoal-800 rounded-xl p-3 space-y-2 border border-charcoal-600">
+                  <div>
+                    <label className={labelClass}>Ingredient Name</label>
+                    <input type="text" placeholder="e.g. Smoked paprika" value={ing.name} onChange={(e) => updateIngredient(ing._key, 'name', e.target.value)} className={inputClass} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className={labelClass}>Amount</label>
+                      <input type="number" placeholder="0" min="0" step="any" value={ing.amount || ''} onChange={(e) => updateIngredient(ing._key, 'amount', parseFloat(e.target.value) || 0)} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Unit</label>
+                      <select value={ing.unit} onChange={(e) => updateIngredient(ing._key, 'unit', e.target.value as WeightUnit)} className={inputClass}>
+                        {UNIT_OPTIONS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Notes (optional)</label>
+                    <input type="text" placeholder="e.g. finely ground" value={ing.notes ?? ''} onChange={(e) => updateIngredient(ing._key, 'notes', e.target.value)} className={inputClass} />
+                  </div>
+                  <div className="flex justify-between items-center pt-1">
+                    <div className="flex gap-2">
+                      <button onClick={() => moveIngredient(ing._key, -1)} disabled={idx === 0} className="text-xs text-charcoal-400 hover:text-charcoal-200 disabled:opacity-20 px-2 py-1 rounded bg-charcoal-700">↑ Up</button>
+                      <button onClick={() => moveIngredient(ing._key, 1)} disabled={idx === ingredients.length - 1} className="text-xs text-charcoal-400 hover:text-charcoal-200 disabled:opacity-20 px-2 py-1 rounded bg-charcoal-700">↓ Down</button>
+                    </div>
+                    <button onClick={() => removeIngredient(ing._key)} disabled={ingredients.length === 1} className="text-xs text-red-400 hover:text-red-300 disabled:opacity-20 px-2 py-1 rounded bg-charcoal-700">Remove</button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
