@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import type { Recipe, RecipeIngredient, RecipeCategory, WeightUnit } from '../types'
-import { CATEGORY_LABELS } from '../data/recipes'
+import type { Recipe, RecipeIngredient, WeightUnit } from '../types'
 import { saveRecipe, getRecipeById, deleteRecipe, isStaticRecipe, isUserRecipe } from '../utils/recipeStorage'
+import { useSettings } from '../contexts/SettingsContext'
 import { UNIT_OPTIONS } from '../utils/units'
 
-const CATEGORIES = Object.entries(CATEGORY_LABELS) as [RecipeCategory, string][]
 
 interface IngredientDraft extends RecipeIngredient {
   _key: string
@@ -27,11 +26,13 @@ export default function RecipeEditor() {
   const { id } = useParams<{ id?: string }>()
   const navigate = useNavigate()
   const isNew = !id
+  const { categoryLabels } = useSettings()
+  const categories = Object.entries(categoryLabels)
 
   const existing = id ? getRecipeById(id) : undefined
 
   const [name, setName] = useState(existing?.name ?? '')
-  const [category, setCategory] = useState<RecipeCategory>(existing?.category ?? 'dry-rub')
+  const [category, setCategory] = useState(existing?.category ?? Object.keys(categoryLabels)[0] ?? 'dry-rub')
   const [tagline, setTagline] = useState(existing?.tagline ?? '')
   const [description, setDescription] = useState(existing?.description ?? '')
   const [yieldAmount, setYieldAmount] = useState<number>(existing?.yieldAmount ?? 100)
@@ -156,10 +157,10 @@ export default function RecipeEditor() {
               <label className={labelClass}>Category</label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value as RecipeCategory)}
+                onChange={(e) => setCategory(e.target.value)}
                 className={inputClass}
               >
-                {CATEGORIES.map(([val, label]) => (
+                {categories.map(([val, label]) => (
                   <option key={val} value={val}>{label}</option>
                 ))}
               </select>

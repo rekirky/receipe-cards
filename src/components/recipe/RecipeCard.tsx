@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import type { Recipe } from '../../types'
-import { CATEGORY_LABELS } from '../../data/recipes'
+import { useSettings } from '../../contexts/SettingsContext'
 
 interface Props {
   recipe: Recipe
@@ -17,6 +17,7 @@ const CATEGORY_COLOURS: Record<string, string> = {
 
 export default function RecipeCard({ recipe }: Props) {
   const navigate = useNavigate()
+  const { categoryLabels } = useSettings()
   const categoryColour = CATEGORY_COLOURS[recipe.category] ?? 'bg-charcoal-600'
 
   return (
@@ -40,7 +41,7 @@ export default function RecipeCard({ recipe }: Props) {
         <span
           className={`inline-block text-xs font-medium text-white px-2 py-0.5 rounded-full mb-2 ${categoryColour}`}
         >
-          {CATEGORY_LABELS[recipe.category] ?? recipe.category}
+          {categoryLabels[recipe.category] ?? recipe.category}
         </span>
         <h2 className="font-display text-2xl text-white tracking-wider leading-tight group-hover:text-ember-400 transition-colors">
           {recipe.name}

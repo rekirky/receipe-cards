@@ -1,6 +1,7 @@
 import { useReducer, useState } from 'react'
 import { pdf } from '@react-pdf/renderer'
 import type { CostingIngredient, CostingSession, SavedCosting } from '../types'
+import { useSettings } from '../contexts/SettingsContext'
 import IngredientCostRow from '../components/costing/IngredientCostRow'
 import CostingSessionPanel from '../components/costing/CostingSessionPanel'
 import CostingPdfDocument from '../components/costing/CostingPdfDocument'
@@ -62,6 +63,7 @@ function initialState(): CostingSession {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function Costing() {
+  const { settings } = useSettings()
   const [state, dispatch] = useReducer(reducer, undefined, initialState)
   const [currentSavedId, setCurrentSavedId] = useState<string | null>(null)
   const [currentSavedName, setCurrentSavedName] = useState<string | null>(null)
@@ -89,7 +91,7 @@ export default function Costing() {
   async function handleExportPDF() {
     setPdfLoading(true)
     try {
-      const blob = await pdf(<CostingPdfDocument session={state} />).toBlob()
+      const blob = await pdf(<CostingPdfDocument session={state} themeColour={settings.themeColour} />).toBlob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url

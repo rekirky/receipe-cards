@@ -1,20 +1,21 @@
 import { useParams, Link } from 'react-router-dom'
 import { usePDF } from '@react-pdf/renderer'
 import { useEffect } from 'react'
-import { CATEGORY_LABELS } from '../data/recipes'
 import { getRecipeById } from '../utils/recipeStorage'
+import { useSettings } from '../contexts/SettingsContext'
 import RecipeCardPDF from '../components/recipe/RecipeCardPDF'
 
 export default function RecipeDetail() {
   const { id } = useParams<{ id: string }>()
   const recipe = id ? getRecipeById(id) : undefined
+  const { categoryLabels, settings } = useSettings()
 
   const [instance, updateInstance] = usePDF({
-    document: recipe ? <RecipeCardPDF recipe={recipe} /> : <></>,
+    document: recipe ? <RecipeCardPDF recipe={recipe} themeColour={settings.themeColour} categoryLabel={categoryLabels[recipe.category] ?? recipe.category} /> : <></>,
   })
 
   useEffect(() => {
-    if (recipe) updateInstance(<RecipeCardPDF recipe={recipe} />)
+    if (recipe) updateInstance(<RecipeCardPDF recipe={recipe} themeColour={settings.themeColour} categoryLabel={categoryLabels[recipe.category] ?? recipe.category} />)
   }, [recipe?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!recipe) {
@@ -43,7 +44,7 @@ export default function RecipeDetail() {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <span className="inline-block text-xs font-medium text-white px-2 py-0.5 rounded-full mb-3 bg-ember-700">
-              {CATEGORY_LABELS[recipe.category] ?? recipe.category}
+              {categoryLabels[recipe.category] ?? recipe.category}
             </span>
             <h1 className="font-display text-4xl sm:text-5xl text-white tracking-widest mb-2">
               {recipe.name.toUpperCase()}

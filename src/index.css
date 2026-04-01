@@ -1,10 +1,26 @@
+/* Default CSS variable values — overridden at runtime by SettingsContext */
+:root {
+  --ember-50:  255 247 237;
+  --ember-100: 255 237 213;
+  --ember-200: 254 215 170;
+  --ember-300: 253 186 116;
+  --ember-400: 251 146 60;
+  --ember-500: 249 115 22;
+  --ember-600: 234 88 12;
+  --ember-700: 194 65 12;
+  --ember-800: 154 52 18;
+  --ember-900: 124 45 18;
+  --bg-colour:  28 25 23;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-charcoal-800 text-charcoal-100 font-body;
+    background-color: rgb(var(--bg-colour));
+    @apply text-charcoal-100 font-body;
   }
 
   h1, h2, h3 {

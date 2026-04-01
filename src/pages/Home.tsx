@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getAllRecipes, CATEGORY_LABELS } from '../data/recipes'
+import { getAllRecipes } from '../data/recipes'
 import RecipeCard from '../components/recipe/RecipeCard'
-import type { RecipeCategory, Recipe } from '../types'
+import { useSettings } from '../contexts/SettingsContext'
+import type { Recipe } from '../types'
 
 const ALL = 'all'
-type Filter = RecipeCategory | typeof ALL
 
 export default function Home() {
-  const [filter, setFilter] = useState<Filter>(ALL)
+  const { categoryLabels } = useSettings()
+  const [filter, setFilter] = useState(ALL)
   const [recipes, setRecipes] = useState<Recipe[]>([])
 
   // Reload from storage on every mount (catches adds/edits from other pages)
@@ -64,7 +65,7 @@ export default function Home() {
                   : 'bg-charcoal-700 text-charcoal-300 hover:bg-charcoal-600 hover:text-white'
               }`}
             >
-              {CATEGORY_LABELS[cat]} ({count})
+              {categoryLabels[cat] ?? cat} ({count})
             </button>
           )
         })}

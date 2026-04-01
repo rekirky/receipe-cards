@@ -1,12 +1,6 @@
 export type WeightUnit = 'g' | 'kg' | 'oz' | 'lb' | 'tsp' | 'tbsp' | 'cup' | 'ml' | 'l'
 
-export type RecipeCategory =
-  | 'dry-rub'
-  | 'wet-marinade'
-  | 'injection'
-  | 'finishing-sauce'
-  | 'brine'
-  | 'seasoning'
+export type RecipeCategory = string
 
 export interface RecipeIngredient {
   name: string
