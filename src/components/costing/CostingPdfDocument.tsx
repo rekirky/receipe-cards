@@ -1,15 +1,7 @@
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import type { CostingSession } from '../../types'
 import { calcLineCost, calcTotalCost } from '../../utils/costing'
 import { formatCurrency, formatUnit } from '../../utils/units'
-
-Font.register({
-  family: 'Inter',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.ttf' },
-    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiA.ttf', fontWeight: 700 },
-  ],
-})
 
 const DARK = '#1c1917'
 const MID = '#44403c'
@@ -19,7 +11,7 @@ const OFF_WHITE = '#f5f5f4'
 
 function makeStyles(ember: string) {
   return StyleSheet.create({
-    page: { backgroundColor: DARK, fontFamily: 'Inter', padding: 0 },
+    page: { backgroundColor: DARK, fontFamily: 'Helvetica', padding: 0 },
     header: {
       backgroundColor: '#0c0a09', paddingHorizontal: 36, paddingTop: 28, paddingBottom: 20,
       borderBottomWidth: 3, borderBottomColor: ember,

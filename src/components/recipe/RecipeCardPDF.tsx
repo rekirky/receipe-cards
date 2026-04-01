@@ -1,13 +1,5 @@
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import type { Recipe } from '../../types'
-
-Font.register({
-  family: 'Inter',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.ttf' },
-    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiA.ttf', fontWeight: 700 },
-  ],
-})
 
 const CHARCOAL_DARK = '#1c1917'
 const CHARCOAL_MID = '#44403c'
@@ -17,7 +9,7 @@ const OFF_WHITE = '#f5f5f4'
 
 function makeStyles(ember: string) {
   return StyleSheet.create({
-    page: { backgroundColor: CHARCOAL_DARK, fontFamily: 'Inter', padding: 0 },
+    page: { backgroundColor: CHARCOAL_DARK, fontFamily: 'Helvetica', padding: 0 },
     headerBand: {
       backgroundColor: '#0c0a09',
       paddingHorizontal: 40, paddingTop: 36, paddingBottom: 24,
@@ -44,7 +36,7 @@ function makeStyles(ember: string) {
     ingredientRow: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: CHARCOAL_MID, paddingVertical: 7 },
     ingredientName: { flex: 1, color: OFF_WHITE, fontSize: 10 },
     ingredientNotes: { flex: 1, color: CHARCOAL_LIGHT, fontSize: 8, fontStyle: 'italic' },
-    ingredientAmount: { color: ember, fontSize: 10, fontWeight: 700, fontFamily: 'Inter', minWidth: 50, textAlign: 'right' },
+    ingredientAmount: { color: ember, fontSize: 10, fontWeight: 700, fontFamily: 'Helvetica-Bold', minWidth: 50, textAlign: 'right' },
     footer: { marginTop: 'auto', paddingHorizontal: 40, paddingBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     footerText: { color: CHARCOAL_LIGHT, fontSize: 7 },
   })
