@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import RecipeDetail from './pages/RecipeDetail'
 import RecipeEditor from './pages/RecipeEditor'
 import Costing from './pages/Costing'
+import Nutrition from './pages/Nutrition'
 import Admin from './pages/Admin'
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
               <Route path="/recipe/:id/edit" element={<RecipeEditor />} />
               <Route path="/recipe/:id" element={<RecipeDetail />} />
               <Route path="/costing" element={<Costing />} />
+              <Route path="/nutrition" element={<Nutrition />} />
               <Route path="/admin" element={<Admin />} />
             </Routes>
           </main>

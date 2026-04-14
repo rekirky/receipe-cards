@@ -50,6 +50,9 @@ export default function Header() {
           <NavLink to="/costing" className={navClass}>
             Menu Costing
           </NavLink>
+          <NavLink to="/nutrition" className={navClass}>
+            Nutrition
+          </NavLink>
           <NavLink
             to="/admin"
             className={({ isActive }) =>
