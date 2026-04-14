@@ -101,6 +101,22 @@ function LogoSection() {
           <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
         </div>
       </div>
+
+      <div>
+        <label className="block text-charcoal-400 text-xs uppercase tracking-widest mb-1.5 font-medium">
+          Logo Link URL
+        </label>
+        <input
+          type="url"
+          placeholder="https://your-erp.example.com (leave blank to link to home)"
+          value={settings.logoLinkUrl}
+          onChange={(e) => updateSettings({ logoLinkUrl: e.target.value })}
+          className="bg-charcoal-800 border border-charcoal-600 text-charcoal-100 rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-ember-500 focus:ring-1 focus:ring-ember-500 placeholder:text-charcoal-600"
+        />
+        <p className="text-charcoal-500 text-xs mt-1.5">
+          When set, clicking the logo opens this URL. Useful for embedding into other software and linking back.
+        </p>
+      </div>
     </Section>
   )
 }

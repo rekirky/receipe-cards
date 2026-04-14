@@ -10,6 +10,7 @@ export interface AppSettings {
   themeColour: string
   bgColour: string
   logoBase64: string | null
+  logoLinkUrl: string
   categories: CategoryDef[]
   printerFriendly: boolean
 }
@@ -18,6 +19,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   themeColour: '#ea580c',
   bgColour: '#1c1917',
   logoBase64: null,
+  logoLinkUrl: '',
   categories: Object.entries(CATEGORY_LABELS).map(([id, label]) => ({ id, label })),
   printerFriendly: false,
 }

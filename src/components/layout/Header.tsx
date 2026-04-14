@@ -11,25 +11,37 @@ export default function Header() {
         : 'text-charcoal-300 hover:text-white hover:bg-charcoal-700'
     }`
 
+  const logoInner = (
+    <>
+      {settings.logoBase64 ? (
+        <img
+          src={settings.logoBase64}
+          alt="Logo"
+          className="w-10 h-10 object-contain rounded-lg"
+        />
+      ) : (
+        <div className="w-10 h-10 bg-ember-600 rounded-lg flex items-center justify-center text-white font-display text-lg">
+          RC
+        </div>
+      )}
+      <span className="font-display text-xl text-white tracking-widest leading-none">
+        RECIPE CARDS
+      </span>
+    </>
+  )
+
   return (
     <header className="bg-charcoal-900 border-b border-charcoal-700 sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-3">
-          {settings.logoBase64 ? (
-            <img
-              src={settings.logoBase64}
-              alt="Logo"
-              className="w-10 h-10 object-contain rounded-lg"
-            />
-          ) : (
-            <div className="w-10 h-10 bg-ember-600 rounded-lg flex items-center justify-center text-white font-display text-lg">
-              RC
-            </div>
-          )}
-          <span className="font-display text-xl text-white tracking-widest leading-none">
-            RECIPE CARDS
-          </span>
-        </Link>
+        {settings.logoLinkUrl ? (
+          <a href={settings.logoLinkUrl} className="flex items-center gap-3">
+            {logoInner}
+          </a>
+        ) : (
+          <Link to="/" className="flex items-center gap-3">
+            {logoInner}
+          </Link>
+        )}
 
         <nav className="flex items-center gap-1">
           <NavLink to="/" className={navClass} end>
