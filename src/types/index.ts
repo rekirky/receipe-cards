@@ -1,4 +1,4 @@
-export type WeightUnit = 'g' | 'kg' | 'oz' | 'lb' | 'tsp' | 'tbsp' | 'cup' | 'ml' | 'l'
+export type WeightUnit = 'g' | 'kg' | 'oz' | 'lb' | 'tsp' | 'tbsp' | 'cup' | 'ml' | 'l' | 'each' | 'unit' | 'drizzle' | 'squirt' | 'pieces'
 
 export type RecipeCategory = string
 

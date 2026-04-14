@@ -11,6 +11,11 @@ const TO_GRAMS: Record<WeightUnit, number> = {
   tsp: 4.92892,   // ~5 ml
   tbsp: 14.7868,  // ~15 ml
   cup: 236.588,   // ~237 ml
+  each: 1,
+  unit: 1,
+  drizzle: 1,
+  squirt: 1,
+  pieces: 1,
 }
 
 export function toGrams(amount: number, unit: WeightUnit): number {
@@ -28,6 +33,11 @@ export function formatUnit(unit: WeightUnit): string {
     tsp: 'tsp',
     tbsp: 'tbsp',
     cup: 'cup',
+    each: 'each',
+    unit: 'unit',
+    drizzle: 'drizzle',
+    squirt: 'squirt',
+    pieces: 'pieces',
   }
   return labels[unit]
 }
@@ -41,13 +51,18 @@ export function formatCurrency(amount: number): string {
 }
 
 export const UNIT_OPTIONS: { value: WeightUnit; label: string }[] = [
-  { value: 'g', label: 'g (grams)' },
-  { value: 'kg', label: 'kg (kilograms)' },
-  { value: 'oz', label: 'oz (ounces)' },
-  { value: 'lb', label: 'lb (pounds)' },
-  { value: 'ml', label: 'ml (millilitres)' },
-  { value: 'l', label: 'L (litres)' },
-  { value: 'tsp', label: 'tsp (teaspoon)' },
-  { value: 'tbsp', label: 'tbsp (tablespoon)' },
-  { value: 'cup', label: 'cup' },
+  { value: 'g',       label: 'g (grams)' },
+  { value: 'kg',      label: 'kg (kilograms)' },
+  { value: 'oz',      label: 'oz (ounces)' },
+  { value: 'lb',      label: 'lb (pounds)' },
+  { value: 'ml',      label: 'ml (millilitres)' },
+  { value: 'l',       label: 'L (litres)' },
+  { value: 'tsp',     label: 'tsp (teaspoon)' },
+  { value: 'tbsp',    label: 'tbsp (tablespoon)' },
+  { value: 'cup',     label: 'cup' },
+  { value: 'each',    label: 'each' },
+  { value: 'unit',    label: 'unit' },
+  { value: 'pieces',  label: 'pieces' },
+  { value: 'drizzle', label: 'drizzle' },
+  { value: 'squirt',  label: 'squirt' },
 ]

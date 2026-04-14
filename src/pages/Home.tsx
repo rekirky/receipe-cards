@@ -26,9 +26,9 @@ export default function Home() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
         <div>
           <h1 className="font-display text-5xl text-white tracking-widest mb-2">
-            SPICE BLEND RECIPES
+            RECIPES
           </h1>
-          <p className="text-charcoal-300 text-lg">Browse and download your spice blend recipes.</p>
+          <p className="text-charcoal-300 text-lg">Browse and download your various recipes.</p>
         </div>
         <Link
           to="/recipe/new"
