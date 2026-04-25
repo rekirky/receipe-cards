@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Local data (never commit recipe data to git)
+/data/
+
+# Editor / OS
+.DS_Store
+*.local

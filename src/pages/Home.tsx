@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getAllRecipes } from '../data/recipes'
+import { getAllRecipes } from '../utils/recipeStorage'
 import RecipeCard from '../components/recipe/RecipeCard'
 import { useSettings } from '../contexts/SettingsContext'
 import type { Recipe } from '../types'
@@ -11,10 +11,13 @@ export default function Home() {
   const { categoryLabels } = useSettings()
   const [filter, setFilter] = useState(ALL)
   const [recipes, setRecipes] = useState<Recipe[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Reload from storage on every mount (catches adds/edits from other pages)
   useEffect(() => {
-    setRecipes(getAllRecipes())
+    getAllRecipes()
+      .then(setRecipes)
+      .catch(console.error)
+      .finally(() => setLoading(false))
   }, [])
 
   const categories = [...new Set(recipes.map((r) => r.category))]
@@ -41,45 +44,53 @@ export default function Home() {
         </Link>
       </div>
 
-      {/* Category filter */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        <button
-          onClick={() => setFilter(ALL)}
-          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-            filter === ALL
-              ? 'bg-ember-600 text-white'
-              : 'bg-charcoal-700 text-charcoal-300 hover:bg-charcoal-600 hover:text-white'
-          }`}
-        >
-          All ({recipes.length})
-        </button>
-        {categories.map((cat) => {
-          const count = recipes.filter((r) => r.category === cat).length
-          return (
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <span className="animate-spin w-8 h-8 border-2 border-ember-500 border-t-transparent rounded-full" />
+        </div>
+      ) : (
+        <>
+          {/* Category filter */}
+          <div className="flex flex-wrap gap-2 mb-8">
             <button
-              key={cat}
-              onClick={() => setFilter(cat)}
+              onClick={() => setFilter(ALL)}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                filter === cat
+                filter === ALL
                   ? 'bg-ember-600 text-white'
                   : 'bg-charcoal-700 text-charcoal-300 hover:bg-charcoal-600 hover:text-white'
               }`}
             >
-              {categoryLabels[cat] ?? cat} ({count})
+              All ({recipes.length})
             </button>
-          )
-        })}
-      </div>
+            {categories.map((cat) => {
+              const count = recipes.filter((r) => r.category === cat).length
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setFilter(cat)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    filter === cat
+                      ? 'bg-ember-600 text-white'
+                      : 'bg-charcoal-700 text-charcoal-300 hover:bg-charcoal-600 hover:text-white'
+                  }`}
+                >
+                  {categoryLabels[cat] ?? cat} ({count})
+                </button>
+              )
+            })}
+          </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filtered.map((recipe) => (
-          <RecipeCard key={recipe.id} recipe={recipe} />
-        ))}
-      </div>
+          {/* Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map((recipe) => (
+              <RecipeCard key={recipe.id} recipe={recipe} />
+            ))}
+          </div>
 
-      {filtered.length === 0 && (
-        <div className="text-center py-20 text-charcoal-400">No recipes in this category yet.</div>
+          {filtered.length === 0 && (
+            <div className="text-center py-20 text-charcoal-400">No recipes in this category yet.</div>
+          )}
+        </>
       )}
     </div>
   )

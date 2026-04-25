@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import type { Recipe, RecipeIngredient, WeightUnit } from '../types'
-import { saveRecipe, getRecipeById, deleteRecipe, isStaticRecipe, isUserRecipe } from '../utils/recipeStorage'
+import { saveRecipe, createRecipe, getRecipeById, deleteRecipe } from '../utils/recipeStorage'
 import { useSettings } from '../contexts/SettingsContext'
 import { UNIT_OPTIONS } from '../utils/units'
 
@@ -29,21 +29,41 @@ export default function RecipeEditor() {
   const { categoryLabels } = useSettings()
   const categories = Object.entries(categoryLabels)
 
-  const existing = id ? getRecipeById(id) : undefined
+  // Form state — initialised to empty; populated once the recipe loads
+  const [initialized, setInitialized] = useState(isNew)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
-  const [name, setName] = useState(existing?.name ?? '')
-  const [category, setCategory] = useState(existing?.category ?? Object.keys(categoryLabels)[0] ?? 'dry-rub')
-  const [tagline, setTagline] = useState(existing?.tagline ?? '')
-  const [description, setDescription] = useState(existing?.description ?? '')
-  const [yieldAmount, setYieldAmount] = useState<number>(existing?.yieldAmount ?? 100)
-  const [yieldUnit, setYieldUnit] = useState(existing?.yieldUnit ?? 'g')
-  const [storageNotes, setStorageNotes] = useState(existing?.storageNotes ?? '')
-  const [ingredients, setIngredients] = useState<IngredientDraft[]>(
-    existing?.ingredients.length
-      ? existing.ingredients.map((i) => ({ ...i, _key: crypto.randomUUID() }))
-      : [blankIngredient()],
-  )
+  const [name, setName] = useState('')
+  const [category, setCategory] = useState(Object.keys(categoryLabels)[0] ?? 'dry-rub')
+  const [tagline, setTagline] = useState('')
+  const [description, setDescription] = useState('')
+  const [yieldAmount, setYieldAmount] = useState<number>(100)
+  const [yieldUnit, setYieldUnit] = useState('g')
+  const [storageNotes, setStorageNotes] = useState('')
+  const [ingredients, setIngredients] = useState<IngredientDraft[]>([blankIngredient()])
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    if (!id) return
+    getRecipeById(id).then((recipe) => {
+      if (recipe) {
+        setName(recipe.name)
+        setCategory(recipe.category)
+        setTagline(recipe.tagline)
+        setDescription(recipe.description)
+        setYieldAmount(recipe.yieldAmount)
+        setYieldUnit(recipe.yieldUnit)
+        setStorageNotes(recipe.storageNotes ?? '')
+        setIngredients(
+          recipe.ingredients.length
+            ? recipe.ingredients.map((i) => ({ ...i, _key: crypto.randomUUID() }))
+            : [blankIngredient()],
+        )
+      }
+      setInitialized(true)
+    }).catch(() => setInitialized(true))
+  }, [id])
 
   function validate(): boolean {
     const e: Record<string, string> = {}
@@ -54,8 +74,10 @@ export default function RecipeEditor() {
     return Object.keys(e).length === 0
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!validate()) return
+    setSaving(true)
+    setSaveError(null)
     const recipeId = isNew ? slugify(name) || crypto.randomUUID() : id!
     const recipe: Recipe = {
       id: recipeId,
@@ -73,14 +95,27 @@ export default function RecipeEditor() {
           notes: rest.notes?.trim() || undefined,
         })),
     }
-    saveRecipe(recipe)
-    navigate(`/recipe/${recipeId}`)
+    try {
+      if (isNew) {
+        await createRecipe(recipe)
+      } else {
+        await saveRecipe(recipe)
+      }
+      navigate(`/recipe/${recipeId}`)
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Failed to save recipe')
+      setSaving(false)
+    }
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!id || !window.confirm('Delete this recipe? This cannot be undone.')) return
-    deleteRecipe(id)
-    navigate('/')
+    try {
+      await deleteRecipe(id)
+      navigate('/')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete recipe')
+    }
   }
 
   function addIngredient() {
@@ -114,8 +149,13 @@ export default function RecipeEditor() {
   const labelClass = 'block text-charcoal-400 text-xs uppercase tracking-widest mb-1.5 font-medium'
   const errorClass = 'text-red-400 text-xs mt-1'
 
-  const showStaticNotice = !isNew && isStaticRecipe(id!) && !isUserRecipe(id!)
-  const canDelete = !isNew && isUserRecipe(id!)
+  if (!initialized) {
+    return (
+      <div className="flex justify-center py-20">
+        <span className="animate-spin w-8 h-8 border-2 border-ember-500 border-t-transparent rounded-full" />
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -127,14 +167,6 @@ export default function RecipeEditor() {
       <h1 className="font-display text-4xl text-white tracking-widest mb-6">
         {isNew ? 'NEW RECIPE' : 'EDIT RECIPE'}
       </h1>
-
-      {showStaticNotice && (
-        <div className="mb-6 bg-charcoal-700 border border-amber-700 rounded-xl px-5 py-3">
-          <p className="text-amber-400 text-sm">
-            You are editing a built-in recipe. Your changes will be saved as a customised local copy.
-          </p>
-        </div>
-      )}
 
       <div className="space-y-6">
         {/* Basic info */}
@@ -335,13 +367,21 @@ export default function RecipeEditor() {
           </button>
         </div>
 
+        {saveError && (
+          <div className="bg-red-900/30 border border-red-800 rounded-xl px-5 py-3">
+            <p className="text-red-400 text-sm">{saveError}</p>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex gap-3">
             <button
               onClick={handleSave}
-              className="px-6 py-2.5 bg-ember-600 hover:bg-ember-500 text-white font-medium rounded-xl transition-colors"
+              disabled={saving}
+              className="px-6 py-2.5 bg-ember-600 hover:bg-ember-500 disabled:opacity-60 text-white font-medium rounded-xl transition-colors flex items-center gap-2"
             >
+              {saving && <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />}
               {isNew ? 'Create Recipe' : 'Save Changes'}
             </button>
             <Link
@@ -352,7 +392,7 @@ export default function RecipeEditor() {
             </Link>
           </div>
 
-          {canDelete && (
+          {!isNew && (
             <button
               onClick={handleDelete}
               className="flex items-center gap-2 px-4 py-2.5 text-red-400 hover:text-white hover:bg-red-900/50 border border-red-900 hover:border-red-700 rounded-xl text-sm font-medium transition-colors"

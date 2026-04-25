@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useSettings } from '../contexts/SettingsContext'
-import { getAllRecipes } from '../data/recipes'
+import { getAllRecipes } from '../utils/recipeStorage'
 import type { CategoryDef } from '../utils/settingsStorage'
 import { DEFAULT_SETTINGS } from '../utils/settingsStorage'
+import type { Recipe } from '../types'
 
 // ── Colour swatch preview ─────────────────────────────────────────────────────
 
@@ -234,13 +235,18 @@ function CategorySection() {
   const [newLabel, setNewLabel] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editLabel, setEditLabel] = useState('')
+  const [recipes, setRecipes] = useState<Recipe[]>([])
+
+  useEffect(() => {
+    getAllRecipes().then(setRecipes).catch(console.error)
+  }, [])
 
   function slugify(s: string) {
     return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   }
 
   function recipesUsingCategory(id: string): number {
-    return getAllRecipes().filter((r) => r.category === id).length
+    return recipes.filter((r) => r.category === id).length
   }
 
   function handleAdd() {
