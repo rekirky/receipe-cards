@@ -2,46 +2,41 @@ import type { CostingSession, SavedCosting } from '../types'
 import { calcLineCost } from './costing'
 import { formatCurrency } from './units'
 
-const KEY = 'rcards-costings-v1'
+const API = '/api/costings'
 
-function load(): Record<string, SavedCosting> {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as Record<string, SavedCosting>) : {}
-  } catch {
-    return {}
-  }
+export async function listSavedCostings(): Promise<SavedCosting[]> {
+  const res = await fetch(API)
+  if (!res.ok) throw new Error('Failed to load costings')
+  return res.json()
 }
 
-function persist(map: Record<string, SavedCosting>): void {
-  localStorage.setItem(KEY, JSON.stringify(map))
-}
-
-export function listSavedCostings(): SavedCosting[] {
-  return Object.values(load()).sort((a, b) => b.savedAt.localeCompare(a.savedAt))
-}
-
-export function saveCostingSession(
+export async function saveCostingSession(
   name: string,
   session: CostingSession,
   existingId?: string,
-): SavedCosting {
-  const map = load()
-  const id = existingId ?? crypto.randomUUID()
-  const record: SavedCosting = { id, name, savedAt: new Date().toISOString(), session }
-  map[id] = record
-  persist(map)
-  return record
+): Promise<SavedCosting> {
+  const id = existingId
+  const method = id ? 'PUT' : 'POST'
+  const url = id ? `${API}/${id}` : API
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, session }),
+  })
+  if (!res.ok) throw new Error('Failed to save costing')
+  return res.json()
 }
 
-export function loadCostingSession(id: string): SavedCosting | undefined {
-  return load()[id]
+export async function loadCostingSession(id: string): Promise<SavedCosting | undefined> {
+  const res = await fetch(`${API}/${id}`)
+  if (res.status === 404) return undefined
+  if (!res.ok) throw new Error('Failed to load costing')
+  return res.json()
 }
 
-export function deleteCostingSession(id: string): void {
-  const map = load()
-  delete map[id]
-  persist(map)
+export async function deleteCostingSession(id: string): Promise<void> {
+  const res = await fetch(`${API}/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error('Failed to delete costing')
 }
 
 export function exportCostingAsCSV(session: CostingSession): void {
@@ -78,7 +73,6 @@ export function exportCostingAsCSV(session: CostingSession): void {
   URL.revokeObjectURL(url)
 }
 
-// Returns a formatted summary string for display purposes
 export function costingSummary(session: CostingSession): {
   totalCost: number
   costPerPortion: number

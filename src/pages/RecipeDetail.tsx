@@ -1,22 +1,51 @@
 import { useParams, Link } from 'react-router-dom'
 import { usePDF } from '@react-pdf/renderer'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { getRecipeById } from '../utils/recipeStorage'
 import { useSettings } from '../contexts/SettingsContext'
 import RecipeCardPDF from '../components/recipe/RecipeCardPDF'
+import type { Recipe } from '../types'
 
 export default function RecipeDetail() {
   const { id } = useParams<{ id: string }>()
-  const recipe = id ? getRecipeById(id) : undefined
   const { categoryLabels, settings } = useSettings()
+  const [recipe, setRecipe] = useState<Recipe | undefined>(undefined)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!id) { setLoading(false); return }
+    getRecipeById(id)
+      .then(setRecipe)
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [id])
 
   const [instance, updateInstance] = usePDF({
-    document: recipe ? <RecipeCardPDF recipe={recipe} themeColour={settings.themeColour} categoryLabel={categoryLabels[recipe.category] ?? recipe.category} printerFriendly={settings.printerFriendly} /> : <></>,
+    document: recipe
+      ? <RecipeCardPDF recipe={recipe} themeColour={settings.themeColour} categoryLabel={categoryLabels[recipe.category] ?? recipe.category} printerFriendly={settings.printerFriendly} />
+      : <></>,
   })
 
   useEffect(() => {
-    if (recipe) updateInstance(<RecipeCardPDF recipe={recipe} themeColour={settings.themeColour} categoryLabel={categoryLabels[recipe.category] ?? recipe.category} printerFriendly={settings.printerFriendly} />)
+    if (recipe) {
+      updateInstance(
+        <RecipeCardPDF
+          recipe={recipe}
+          themeColour={settings.themeColour}
+          categoryLabel={categoryLabels[recipe.category] ?? recipe.category}
+          printerFriendly={settings.printerFriendly}
+        />,
+      )
+    }
   }, [recipe?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <span className="animate-spin w-8 h-8 border-2 border-ember-500 border-t-transparent rounded-full" />
+      </div>
+    )
+  }
 
   if (!recipe) {
     return (

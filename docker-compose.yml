@@ -2,7 +2,9 @@ services:
   recipe-cards:
     image: ghcr.io/rekirky/receipe-cards:latest
     ports:
-      - "2347:80"
+      - "2347:3000"
+    volumes:
+      - recipe-data:/data
     restart: unless-stopped
 
   watchtower:
@@ -11,3 +13,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --interval 300 recipe-cards
     restart: unless-stopped
+
+volumes:
+  recipe-data:

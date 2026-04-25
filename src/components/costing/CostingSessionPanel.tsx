@@ -25,21 +25,40 @@ export default function CostingSessionPanel({ currentSession, currentSavedId, on
   const [saveName, setSaveName] = useState('')
   const [showSaveInput, setShowSaveInput] = useState(false)
 
-  function refresh() {
-    setSaved(listSavedCostings())
+  async function refresh() {
+    try {
+      setSaved(await listSavedCostings())
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   useEffect(() => {
     refresh()
   }, [])
 
-  function handleSave() {
+  async function handleSave() {
     const name = saveName.trim() || currentSession.recipeName || `Costing ${new Date().toLocaleDateString('en-AU')}`
-    const record = saveCostingSession(name, currentSession, currentSavedId ?? undefined)
-    onSaved(record.id, record.name)
-    setShowSaveInput(false)
-    setSaveName('')
-    refresh()
+    try {
+      const record = await saveCostingSession(name, currentSession, currentSavedId ?? undefined)
+      onSaved(record.id, record.name)
+      setShowSaveInput(false)
+      setSaveName('')
+      await refresh()
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  async function handleUpdate() {
+    const existingName = saved.find((s) => s.id === currentSavedId)?.name ?? currentSession.recipeName
+    try {
+      const record = await saveCostingSession(existingName, currentSession, currentSavedId ?? undefined)
+      onSaved(record.id, record.name)
+      await refresh()
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   function handleLoad(record: SavedCosting) {
@@ -52,13 +71,16 @@ export default function CostingSessionPanel({ currentSession, currentSavedId, on
       return
     }
     onLoad(record)
-    refresh()
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
     if (!window.confirm('Delete this saved costing?')) return
-    deleteCostingSession(id)
-    refresh()
+    try {
+      await deleteCostingSession(id)
+      await refresh()
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const inputClass =
@@ -106,15 +128,7 @@ export default function CostingSessionPanel({ currentSession, currentSavedId, on
             {currentSavedId ? (
               <>
                 <button
-                  onClick={() => {
-                    const record = saveCostingSession(
-                      saved.find((s) => s.id === currentSavedId)?.name ?? currentSession.recipeName,
-                      currentSession,
-                      currentSavedId,
-                    )
-                    onSaved(record.id, record.name)
-                    refresh()
-                  }}
+                  onClick={handleUpdate}
                   className="flex items-center gap-1.5 px-4 py-2 bg-ember-600 hover:bg-ember-500 text-white text-sm font-medium rounded-lg transition-colors"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
