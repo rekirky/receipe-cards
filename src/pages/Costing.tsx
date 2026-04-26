@@ -1,4 +1,5 @@
 import { useReducer, useState } from 'react'
+import { generateId } from '../utils/uuid'
 import { pdf } from '@react-pdf/renderer'
 import type { CostingIngredient, CostingSession, SavedCosting } from '../types'
 import { useSettings } from '../contexts/SettingsContext'
@@ -22,7 +23,7 @@ type Action =
 
 function newIngredient(): CostingIngredient {
   return {
-    id: crypto.randomUUID(),
+    id: generateId(),
     name: '',
     purchaseWeight: 0,
     purchaseUnit: 'kg',

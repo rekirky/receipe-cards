@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { generateId } from '../utils/uuid'
 
 interface NutrientRow {
   id: string
@@ -133,7 +134,7 @@ export default function Nutrition() {
   function addRow() {
     setRows((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), name: '', unit: 'g', per100g: '0' },
+      { id: generateId(), name: '', unit: 'g', per100g: '0' },
     ])
   }
 
