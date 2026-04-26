@@ -66,9 +66,12 @@ interface Props {
 
 export default function RecipeCardPDF({ recipe, themeColour, categoryLabel, printerFriendly = false, pdfIncludeImages }: Props) {
   const styles = makeStyles(themeColour, printerFriendly)
-  const imageSlots = recipe.images
+  const isSvg = (dataUrl: string) => dataUrl.startsWith('data:image/svg')
+  const allEnabledSlots = recipe.images
     ? IMAGE_SLOTS.filter((s) => recipe.images![s.key] && (pdfIncludeImages?.[s.key] ?? true))
     : []
+  const imageSlots = allEnabledSlots.filter((s) => !isSvg(recipe.images![s.key]!))
+  const svgSlots = allEnabledSlots.filter((s) => isSvg(recipe.images![s.key]!))
 
   return (
     <Document title={recipe.name} author="Recipe Cards">
@@ -115,17 +118,27 @@ export default function RecipeCardPDF({ recipe, themeColour, categoryLabel, prin
           <Text style={styles.footerText}>Recipe Card</Text>
         </View>
       </Page>
-      {imageSlots.length > 0 && (
+      {(imageSlots.length > 0 || svgSlots.length > 0) && (
         <Page size="A4" style={styles.imgPage} orientation="landscape">
           <Text style={styles.imgPageTitle}>{recipe.name.toUpperCase()} — Images</Text>
-          <View style={styles.imgGrid}>
-            {imageSlots.map((slot) => (
-              <View key={slot.key} style={styles.imgCell}>
-                <Text style={styles.imgLabel}>{slot.label}</Text>
-                <Image style={styles.imgImg} src={recipe.images![slot.key]!} />
-              </View>
-            ))}
-          </View>
+          {imageSlots.length > 0 && (
+            <View style={styles.imgGrid}>
+              {imageSlots.map((slot) => (
+                <View key={slot.key} style={styles.imgCell}>
+                  <Text style={styles.imgLabel}>{slot.label}</Text>
+                  <Image style={styles.imgImg} src={recipe.images![slot.key]!} />
+                </View>
+              ))}
+            </View>
+          )}
+          {svgSlots.length > 0 && (
+            <View style={{ marginTop: imageSlots.length > 0 ? 20 : 0 }}>
+              <Text style={{ ...styles.imgLabel, marginBottom: 6 }}>SVG images (download from recipe page):</Text>
+              {svgSlots.map((slot) => (
+                <Text key={slot.key} style={{ ...styles.footerText, marginBottom: 3 }}>• {slot.label}</Text>
+              ))}
+            </View>
+          )}
         </Page>
       )}
     </Document>

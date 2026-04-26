@@ -396,7 +396,7 @@ export default function RecipeEditor() {
         {/* Images */}
         <div className="bg-charcoal-700 rounded-2xl p-6 border border-charcoal-600">
           <h2 className="font-display text-xl text-ember-400 tracking-wider mb-1">IMAGES</h2>
-          <p className="text-charcoal-500 text-xs mb-4">All optional. Max 1.5 MB each. Appear on the PDF and can be downloaded from the recipe page.</p>
+          <p className="text-charcoal-500 text-xs mb-4">All optional. Max 1.5 MB each. JPG, PNG, WebP, and SVG supported. SVG images appear on the recipe page only — not embedded in the PDF.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {IMAGE_SLOTS.map((slot) => {
               const existing = images[slot.key]
@@ -411,7 +411,7 @@ export default function RecipeEditor() {
                           Replace
                           <input
                             type="file"
-                            accept="image/*"
+                            accept="image/*,.svg"
                             className="hidden"
                             onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(slot.key, f); e.target.value = '' }}
                           />
@@ -432,7 +432,7 @@ export default function RecipeEditor() {
                       <span className="text-xs text-charcoal-500 group-hover:text-ember-400 transition-colors">Upload image</span>
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/*,.svg"
                         className="hidden"
                         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(slot.key, f); e.target.value = '' }}
                       />

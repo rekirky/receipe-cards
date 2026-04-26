@@ -190,7 +190,9 @@ export default function RecipeDetail() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {IMAGE_SLOTS.filter((slot) => recipe.images?.[slot.key]).map((slot) => {
               const dataUrl = recipe.images![slot.key]!
-              const ext = dataUrl.startsWith('data:image/png') ? 'png' : dataUrl.startsWith('data:image/webp') ? 'webp' : 'jpg'
+              const mime = dataUrl.split(';')[0].slice(5)
+              const extMap: Record<string, string> = { 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/svg+xml': 'svg' }
+              const ext = extMap[mime] ?? 'jpg'
               return (
                 <div key={slot.key} className="space-y-2">
                   <span className="block text-charcoal-400 text-xs uppercase tracking-widest font-medium">{slot.label}</span>
