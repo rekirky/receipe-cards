@@ -4,6 +4,7 @@ import type { Recipe, RecipeIngredient, WeightUnit } from '../types'
 import { saveRecipe, createRecipe, getRecipeById, deleteRecipe } from '../utils/recipeStorage'
 import { useSettings } from '../contexts/SettingsContext'
 import { UNIT_OPTIONS } from '../utils/units'
+import { generateId } from '../utils/uuid'
 
 
 interface IngredientDraft extends RecipeIngredient {
@@ -11,7 +12,7 @@ interface IngredientDraft extends RecipeIngredient {
 }
 
 function blankIngredient(): IngredientDraft {
-  return { _key: crypto.randomUUID(), name: '', amount: 0, unit: 'g', notes: '' }
+  return { _key: generateId(), name: '', amount: 0, unit: 'g', notes: '' }
 }
 
 function slugify(name: string): string {
@@ -57,7 +58,7 @@ export default function RecipeEditor() {
         setStorageNotes(recipe.storageNotes ?? '')
         setIngredients(
           recipe.ingredients.length
-            ? recipe.ingredients.map((i) => ({ ...i, _key: crypto.randomUUID() }))
+            ? recipe.ingredients.map((i) => ({ ...i, _key: generateId() }))
             : [blankIngredient()],
         )
       }
@@ -78,7 +79,7 @@ export default function RecipeEditor() {
     if (!validate()) return
     setSaving(true)
     setSaveError(null)
-    const recipeId = isNew ? slugify(name) || crypto.randomUUID() : id!
+    const recipeId = isNew ? slugify(name) || generateId() : id!
     const recipe: Recipe = {
       id: recipeId,
       name: name.trim(),
