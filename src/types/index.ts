@@ -9,6 +9,22 @@ export interface RecipeIngredient {
   notes?: string
 }
 
+export interface RecipeImages {
+  front?: string
+  back?: string
+  instructions?: string
+  nutritional?: string
+  additional?: string
+}
+
+export const IMAGE_SLOTS: { key: keyof RecipeImages; label: string }[] = [
+  { key: 'front',        label: 'Front' },
+  { key: 'back',         label: 'Back' },
+  { key: 'instructions', label: 'Usage / Instructions' },
+  { key: 'nutritional',  label: 'Nutritional Information' },
+  { key: 'additional',   label: 'Additional Image' },
+]
+
 export interface Recipe {
   id: string
   name: string
@@ -19,7 +35,7 @@ export interface Recipe {
   yieldAmount: number
   yieldUnit: string
   storageNotes?: string
-  imageUrl?: string
+  images?: RecipeImages
 }
 
 // ── Saved Costings ───────────────────────────────────────────────────────────

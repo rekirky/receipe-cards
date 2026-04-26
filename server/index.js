@@ -9,7 +9,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = process.env.PORT || 3000
 
-app.use(express.json({ limit: '4mb' }))
+app.use(express.json({ limit: '10mb' }))
 
 // Prevent Cloudflare and other proxies from caching API responses
 app.use('/api', (_req, res, next) => {

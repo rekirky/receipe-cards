@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import type { Recipe, RecipeIngredient, WeightUnit } from '../types'
+import type { Recipe, RecipeIngredient, RecipeImages, WeightUnit } from '../types'
+import { IMAGE_SLOTS } from '../types'
 import { saveRecipe, createRecipe, getRecipeById, deleteRecipe } from '../utils/recipeStorage'
 import { useSettings } from '../contexts/SettingsContext'
 import { UNIT_OPTIONS } from '../utils/units'
@@ -43,6 +44,7 @@ export default function RecipeEditor() {
   const [yieldUnit, setYieldUnit] = useState('g')
   const [storageNotes, setStorageNotes] = useState('')
   const [ingredients, setIngredients] = useState<IngredientDraft[]>([blankIngredient()])
+  const [images, setImages] = useState<RecipeImages>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -61,6 +63,7 @@ export default function RecipeEditor() {
             ? recipe.ingredients.map((i) => ({ ...i, _key: generateId() }))
             : [blankIngredient()],
         )
+        setImages(recipe.images ?? {})
       }
       setInitialized(true)
     }).catch(() => setInitialized(true))
@@ -95,6 +98,7 @@ export default function RecipeEditor() {
           ...rest,
           notes: rest.notes?.trim() || undefined,
         })),
+      images: Object.keys(images).length > 0 ? images : undefined,
     }
     try {
       if (isNew) {
@@ -141,6 +145,27 @@ export default function RecipeEditor() {
       const swap = idx + dir
       if (swap < 0 || swap >= next.length) return prev
       ;[next[idx], next[swap]] = [next[swap], next[idx]]
+      return next
+    })
+  }
+
+  function handleImageUpload(key: keyof RecipeImages, file: File) {
+    if (file.size > 1.5 * 1024 * 1024) {
+      alert(`Image must be under 1.5 MB (${file.name})`)
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string
+      setImages((prev) => ({ ...prev, [key]: dataUrl }))
+    }
+    reader.readAsDataURL(file)
+  }
+
+  function removeImage(key: keyof RecipeImages) {
+    setImages((prev) => {
+      const next = { ...prev }
+      delete next[key]
       return next
     })
   }
@@ -366,6 +391,57 @@ export default function RecipeEditor() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             Add ingredient
           </button>
+        </div>
+
+        {/* Images */}
+        <div className="bg-charcoal-700 rounded-2xl p-6 border border-charcoal-600">
+          <h2 className="font-display text-xl text-ember-400 tracking-wider mb-1">IMAGES</h2>
+          <p className="text-charcoal-500 text-xs mb-4">All optional. Max 1.5 MB each. Appear on the PDF and can be downloaded from the recipe page.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {IMAGE_SLOTS.map((slot) => {
+              const existing = images[slot.key]
+              return (
+                <div key={slot.key} className="space-y-2">
+                  <span className={labelClass}>{slot.label}</span>
+                  {existing ? (
+                    <div className="relative group rounded-xl overflow-hidden border border-charcoal-600 bg-charcoal-800">
+                      <img src={existing} alt={slot.label} className="w-full h-32 object-cover" />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <label className="cursor-pointer px-3 py-1.5 bg-charcoal-700 text-charcoal-200 text-xs rounded-lg hover:bg-charcoal-600 transition-colors">
+                          Replace
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(slot.key, f); e.target.value = '' }}
+                          />
+                        </label>
+                        <button
+                          onClick={() => removeImage(slot.key)}
+                          className="px-3 py-1.5 bg-red-900/70 text-red-300 text-xs rounded-lg hover:bg-red-800 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-charcoal-600 hover:border-ember-500 bg-charcoal-800 cursor-pointer transition-colors group">
+                      <svg className="w-6 h-6 text-charcoal-500 group-hover:text-ember-400 mb-1 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5V19a1.5 1.5 0 001.5 1.5h15A1.5 1.5 0 0021 19v-2.5M16.5 8.25L12 3.75m0 0L7.5 8.25M12 3.75V15" />
+                      </svg>
+                      <span className="text-xs text-charcoal-500 group-hover:text-ember-400 transition-colors">Upload image</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(slot.key, f); e.target.value = '' }}
+                      />
+                    </label>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
 
         {saveError && (

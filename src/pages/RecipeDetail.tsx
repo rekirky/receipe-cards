@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { getRecipeById } from '../utils/recipeStorage'
 import { useSettings } from '../contexts/SettingsContext'
 import type { Recipe } from '../types'
+import { IMAGE_SLOTS } from '../types'
 import RecipeCardPDF from '../components/recipe/RecipeCardPDF'
 
 export default function RecipeDetail() {
@@ -179,6 +180,37 @@ export default function RecipeDetail() {
           </div>
         </div>
       </div>
+
+      {/* Image gallery */}
+      {recipe.images && Object.keys(recipe.images).length > 0 && (
+        <div className="mt-6 bg-charcoal-700 rounded-2xl p-6 border border-charcoal-600">
+          <h2 className="font-display text-2xl text-ember-400 tracking-wider mb-4">IMAGES</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {IMAGE_SLOTS.filter((slot) => recipe.images?.[slot.key]).map((slot) => {
+              const dataUrl = recipe.images![slot.key]!
+              const ext = dataUrl.startsWith('data:image/png') ? 'png' : dataUrl.startsWith('data:image/webp') ? 'webp' : 'jpg'
+              return (
+                <div key={slot.key} className="space-y-2">
+                  <span className="block text-charcoal-400 text-xs uppercase tracking-widest font-medium">{slot.label}</span>
+                  <div className="rounded-xl overflow-hidden border border-charcoal-600 bg-charcoal-800">
+                    <img src={dataUrl} alt={slot.label} className="w-full object-cover max-h-56" />
+                  </div>
+                  <a
+                    href={dataUrl}
+                    download={`${recipe.id}-${slot.key}.${ext}`}
+                    className="flex items-center gap-2 text-xs text-ember-400 hover:text-ember-300 transition-colors font-medium"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0-3-3m3 3 3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Download {slot.label}
+                  </a>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

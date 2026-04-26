@@ -1,5 +1,6 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
 import type { Recipe } from '../../types'
+import { IMAGE_SLOTS } from '../../types'
 
 function makeStyles(ember: string, print: boolean) {
   const bg        = print ? '#ffffff' : '#1c1917'
@@ -45,6 +46,13 @@ function makeStyles(ember: string, print: boolean) {
     ingredientAmount: { color: accent, fontSize: 10, fontWeight: 700, fontFamily: 'Helvetica-Bold', minWidth: 50, textAlign: 'right' },
     footer: { marginTop: 'auto', paddingHorizontal: 40, paddingBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     footerText: { color: mutedText, fontSize: 7 },
+    // Image page
+    imgPage: { backgroundColor: bg, fontFamily: 'Helvetica', padding: 32 },
+    imgPageTitle: { color: accent, fontSize: 8, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 },
+    imgGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
+    imgCell: { width: '47%' },
+    imgLabel: { color: mutedText, fontSize: 7, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 },
+    imgImg: { width: '100%', borderRadius: 4 },
   })
 }
 
@@ -57,6 +65,9 @@ interface Props {
 
 export default function RecipeCardPDF({ recipe, themeColour, categoryLabel, printerFriendly = false }: Props) {
   const styles = makeStyles(themeColour, printerFriendly)
+  const imageSlots = recipe.images
+    ? IMAGE_SLOTS.filter((s) => recipe.images![s.key])
+    : []
 
   return (
     <Document title={recipe.name} author="Recipe Cards">
@@ -103,6 +114,19 @@ export default function RecipeCardPDF({ recipe, themeColour, categoryLabel, prin
           <Text style={styles.footerText}>Recipe Card</Text>
         </View>
       </Page>
+      {imageSlots.length > 0 && (
+        <Page size="A4" style={styles.imgPage} orientation="landscape">
+          <Text style={styles.imgPageTitle}>{recipe.name.toUpperCase()} — Images</Text>
+          <View style={styles.imgGrid}>
+            {imageSlots.map((slot) => (
+              <View key={slot.key} style={styles.imgCell}>
+                <Text style={styles.imgLabel}>{slot.label}</Text>
+                <Image style={styles.imgImg} src={recipe.images![slot.key]!} />
+              </View>
+            ))}
+          </View>
+        </Page>
+      )}
     </Document>
   )
 }
