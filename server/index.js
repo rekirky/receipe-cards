@@ -11,6 +11,12 @@ const PORT = process.env.PORT || 3000
 
 app.use(express.json({ limit: '4mb' }))
 
+// Prevent Cloudflare and other proxies from caching API responses
+app.use('/api', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store')
+  next()
+})
+
 app.use('/api/recipes', recipesRouter)
 app.use('/api/settings', settingsRouter)
 app.use('/api/costings', costingsRouter)
