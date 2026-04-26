@@ -113,8 +113,6 @@ const SEED_RECIPES = [
 ]
 
 const DEFAULT_SETTINGS = {
-  themeColour: '#ea580c',
-  bgColour: '#1c1917',
   logoBase64: null,
   logoLinkUrl: '',
   categories: [
@@ -125,7 +123,6 @@ const DEFAULT_SETTINGS = {
     { id: 'brine', label: 'Brine' },
     { id: 'seasoning', label: 'Seasoning' },
   ],
-  printerFriendly: false,
 }
 
 function ensureDir() {

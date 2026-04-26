@@ -1,7 +1,23 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import type { AppSettings } from '../utils/settingsStorage'
-import { loadSettings, saveSettings, categoryLabelsFromSettings } from '../utils/settingsStorage'
+import type { AppSettings, ServerSettings, DeviceSettings } from '../utils/settingsStorage'
+import {
+  DEFAULT_SETTINGS,
+  DEFAULT_SERVER_SETTINGS,
+  loadDeviceSettings,
+  saveDeviceSettings,
+  categoryLabelsFromSettings,
+} from '../utils/settingsStorage'
 import { applyThemeToDom } from '../utils/colourShades'
+
+const SERVER_KEYS = new Set<keyof AppSettings>(['logoBase64', 'logoLinkUrl', 'categories'])
+
+function pickServer(s: AppSettings): ServerSettings {
+  return { logoBase64: s.logoBase64, logoLinkUrl: s.logoLinkUrl, categories: s.categories }
+}
+
+function pickDevice(s: AppSettings): DeviceSettings {
+  return { themeColour: s.themeColour, bgColour: s.bgColour, printerFriendly: s.printerFriendly }
+}
 
 interface SettingsCtx {
   settings: AppSettings
@@ -10,7 +26,7 @@ interface SettingsCtx {
 }
 
 const SettingsContext = createContext<SettingsCtx>({
-  settings: loadSettings(),
+  settings: DEFAULT_SETTINGS,
   categoryLabels: {},
   updateSettings: async () => {},
 })
@@ -20,34 +36,43 @@ export function useSettings() {
 }
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  // Initialise from localStorage cache so the theme applies immediately (no flash)
-  const [settings, setSettings] = useState<AppSettings>(loadSettings)
+  const [settings, setSettings] = useState<AppSettings>(() => ({
+    ...DEFAULT_SERVER_SETTINGS,
+    ...loadDeviceSettings(),
+  }))
 
-  // Fetch authoritative settings from server on mount and keep cache warm
+  // Fetch server settings on mount and merge with local device prefs
   useEffect(() => {
     fetch('/api/settings')
       .then((r) => r.json())
-      .then((serverSettings: AppSettings) => {
-        setSettings(serverSettings)
-        saveSettings(serverSettings)
-        applyThemeToDom(serverSettings.themeColour, serverSettings.bgColour)
+      .then((serverSettings: ServerSettings) => {
+        setSettings((prev) => ({ ...prev, ...serverSettings }))
       })
       .catch(() => {
-        // Fall back to cached settings silently
+        // Keep defaults silently
       })
   }, [])
 
   async function updateSettings(patch: Partial<AppSettings>) {
     const next = { ...settings, ...patch }
-    // Optimistic update — apply immediately so the UI feels instant
     setSettings(next)
-    saveSettings(next)
-    applyThemeToDom(next.themeColour, next.bgColour)
-    await fetch('/api/settings', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(next),
-    })
+
+    const hasServerChange = Object.keys(patch).some((k) => SERVER_KEYS.has(k as keyof AppSettings))
+    const hasDeviceChange = Object.keys(patch).some((k) => !SERVER_KEYS.has(k as keyof AppSettings))
+
+    if (hasDeviceChange) {
+      const device = pickDevice(next)
+      saveDeviceSettings(device)
+      applyThemeToDom(next.themeColour, next.bgColour)
+    }
+
+    if (hasServerChange) {
+      await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pickServer(next)),
+      })
+    }
   }
 
   const categoryLabels = categoryLabelsFromSettings(settings)

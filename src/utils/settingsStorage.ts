@@ -6,48 +6,59 @@ export interface CategoryDef {
   label: string
 }
 
-export interface AppSettings {
-  themeColour: string
-  bgColour: string
+// Stored server-side — shared across all devices
+export interface ServerSettings {
   logoBase64: string | null
   logoLinkUrl: string
   categories: CategoryDef[]
+}
+
+// Stored in localStorage — per device
+export interface DeviceSettings {
+  themeColour: string
+  bgColour: string
   printerFriendly: boolean
 }
 
-export const DEFAULT_SETTINGS: AppSettings = {
-  themeColour: '#ea580c',
-  bgColour: '#1c1917',
+export interface AppSettings extends ServerSettings, DeviceSettings {}
+
+export const DEFAULT_SERVER_SETTINGS: ServerSettings = {
   logoBase64: null,
   logoLinkUrl: '',
   categories: Object.entries(CATEGORY_LABELS).map(([id, label]) => ({ id, label })),
+}
+
+export const DEFAULT_DEVICE_SETTINGS: DeviceSettings = {
+  themeColour: '#ea580c',
+  bgColour: '#1c1917',
   printerFriendly: false,
 }
 
-const KEY = 'rcards-settings-v1'
+export const DEFAULT_SETTINGS: AppSettings = {
+  ...DEFAULT_SERVER_SETTINGS,
+  ...DEFAULT_DEVICE_SETTINGS,
+}
 
-export function loadSettings(): AppSettings {
+const DEVICE_KEY = 'rcards-device-v1'
+
+export function loadDeviceSettings(): DeviceSettings {
   try {
-    const raw = localStorage.getItem(KEY)
-    if (!raw) return DEFAULT_SETTINGS
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) }
+    const raw = localStorage.getItem(DEVICE_KEY)
+    if (!raw) return DEFAULT_DEVICE_SETTINGS
+    return { ...DEFAULT_DEVICE_SETTINGS, ...JSON.parse(raw) }
   } catch {
-    return DEFAULT_SETTINGS
+    return DEFAULT_DEVICE_SETTINGS
   }
 }
 
-export function saveSettings(settings: AppSettings): void {
-  localStorage.setItem(KEY, JSON.stringify(settings))
+export function saveDeviceSettings(s: DeviceSettings): void {
+  localStorage.setItem(DEVICE_KEY, JSON.stringify(s))
 }
 
-export function resetSettings(): void {
-  localStorage.removeItem(KEY)
-}
-
-// Called before React mounts to avoid flash of unstyled theme
+// Called synchronously before React mounts to avoid theme flash
 export function applyStoredSettings(): void {
-  const s = loadSettings()
-  applyThemeToDom(s.themeColour, s.bgColour)
+  const d = loadDeviceSettings()
+  applyThemeToDom(d.themeColour, d.bgColour)
 }
 
 export function categoryLabelsFromSettings(settings: AppSettings): Record<string, string> {
