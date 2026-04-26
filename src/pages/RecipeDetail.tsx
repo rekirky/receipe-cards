@@ -1,10 +1,10 @@
 import { useParams, Link } from 'react-router-dom'
 import { usePDF } from '@react-pdf/renderer'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { getRecipeById } from '../utils/recipeStorage'
 import { useSettings } from '../contexts/SettingsContext'
-import RecipeCardPDF from '../components/recipe/RecipeCardPDF'
 import type { Recipe } from '../types'
+import RecipeCardPDF from '../components/recipe/RecipeCardPDF'
 
 export default function RecipeDetail() {
   const { id } = useParams<{ id: string }>()
@@ -13,18 +13,23 @@ export default function RecipeDetail() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!id) { setLoading(false); return }
+    if (!id) return
+    setLoading(true)
     getRecipeById(id)
       .then(setRecipe)
-      .catch(console.error)
       .finally(() => setLoading(false))
   }, [id])
 
-  const [instance, updateInstance] = usePDF({
-    document: recipe
-      ? <RecipeCardPDF recipe={recipe} themeColour={settings.themeColour} categoryLabel={categoryLabels[recipe.category] ?? recipe.category} printerFriendly={settings.printerFriendly} />
-      : <></>,
-  })
+  const pdfDoc = recipe
+    ? <RecipeCardPDF
+        recipe={recipe}
+        themeColour={settings.themeColour}
+        categoryLabel={categoryLabels[recipe.category] ?? recipe.category}
+        printerFriendly={settings.printerFriendly}
+      />
+    : <></>
+
+  const [instance, updateInstance] = usePDF({ document: pdfDoc })
 
   useEffect(() => {
     if (recipe) {
@@ -34,10 +39,10 @@ export default function RecipeDetail() {
           themeColour={settings.themeColour}
           categoryLabel={categoryLabels[recipe.category] ?? recipe.category}
           printerFriendly={settings.printerFriendly}
-        />,
+        />
       )
     }
-  }, [recipe?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [recipe, settings.themeColour, settings.printerFriendly]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (
@@ -103,18 +108,8 @@ export default function RecipeDetail() {
                 download={`${recipe.id}-recipe-card.pdf`}
                 className="flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm bg-ember-600 hover:bg-ember-500 text-white shadow-lg shadow-ember-900/40 transition-colors"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 10v6m0 0-3-3m3 3 3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0-3-3m3 3 3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Download PDF
               </a>
@@ -131,17 +126,14 @@ export default function RecipeDetail() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         {/* Ingredients */}
         <div className="md:col-span-3 bg-charcoal-700 rounded-2xl p-6 border border-charcoal-600">
-          <h2 className="font-display text-2xl text-ember-400 tracking-wider mb-4">
-            INGREDIENTS
-          </h2>
+          <h2 className="font-display text-2xl text-ember-400 tracking-wider mb-4">INGREDIENTS</h2>
           <p className="text-charcoal-400 text-xs uppercase tracking-widest mb-4">
-            Batch yield: {recipe.yieldAmount}
-            {recipe.yieldUnit}
+            Batch yield: {recipe.yieldAmount}{recipe.yieldUnit}
           </p>
           <div className="space-y-0">
             {recipe.ingredients.map((ing, i) => (
               <div
-                key={ing.name}
+                key={`${ing.name}-${i}`}
                 className={`flex items-start justify-between py-3 ${
                   i !== recipe.ingredients.length - 1 ? 'border-b border-charcoal-600' : ''
                 }`}
@@ -149,9 +141,7 @@ export default function RecipeDetail() {
                 <div>
                   <span className="text-charcoal-100 font-medium">{ing.name}</span>
                   {ing.notes && (
-                    <span className="block text-charcoal-400 text-xs italic mt-0.5">
-                      {ing.notes}
-                    </span>
+                    <span className="block text-charcoal-400 text-xs italic mt-0.5">{ing.notes}</span>
                   )}
                 </div>
                 <span className="text-ember-400 font-mono font-bold text-sm ml-4 shrink-0">
@@ -171,9 +161,7 @@ export default function RecipeDetail() {
 
           {recipe.storageNotes && (
             <div className="bg-charcoal-700 rounded-2xl p-6 border border-charcoal-600">
-              <h2 className="font-display text-xl text-ember-400 tracking-wider mb-3">
-                STORAGE
-              </h2>
+              <h2 className="font-display text-xl text-ember-400 tracking-wider mb-3">STORAGE</h2>
               <p className="text-charcoal-200 text-sm leading-relaxed">{recipe.storageNotes}</p>
             </div>
           )}
@@ -186,9 +174,7 @@ export default function RecipeDetail() {
             </div>
             <div className="flex justify-between text-sm mt-2">
               <span className="text-charcoal-400">Batch yield</span>
-              <span className="text-white font-medium">
-                {recipe.yieldAmount} {recipe.yieldUnit}
-              </span>
+              <span className="text-white font-medium">{recipe.yieldAmount} {recipe.yieldUnit}</span>
             </div>
           </div>
         </div>
