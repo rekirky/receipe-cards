@@ -4,6 +4,7 @@ import { getAllRecipes } from '../utils/recipeStorage'
 import type { CategoryDef } from '../utils/settingsStorage'
 import { DEFAULT_SETTINGS } from '../utils/settingsStorage'
 import type { Recipe } from '../types'
+import { IMAGE_SLOTS } from '../types'
 
 // ── Colour swatch preview ─────────────────────────────────────────────────────
 
@@ -196,8 +197,36 @@ function ColourSection() {
 
 // ── PDF ───────────────────────────────────────────────────────────────────────
 
+function Toggle({ checked, onToggle }: { checked: boolean; onToggle: () => void }) {
+  return (
+    <button
+      role="switch"
+      aria-checked={checked}
+      onClick={onToggle}
+      className={`relative shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ember-500 focus:ring-offset-2 focus:ring-offset-charcoal-700 ${
+        checked ? 'bg-ember-600' : 'bg-charcoal-500'
+      }`}
+    >
+      <span
+        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+          checked ? 'translate-x-5' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  )
+}
+
 function PDFSection() {
   const { settings, updateSettings } = useSettings()
+
+  function toggleImageSlot(key: string) {
+    updateSettings({
+      pdfIncludeImages: {
+        ...settings.pdfIncludeImages,
+        [key]: !settings.pdfIncludeImages[key],
+      },
+    })
+  }
 
   return (
     <Section title="PDF OPTIONS">
@@ -208,21 +237,31 @@ function PDFSection() {
             Outputs PDFs with a white background and greyscale text — ideal for printing.
           </p>
         </div>
-        <button
-          role="switch"
-          aria-checked={settings.printerFriendly}
-          onClick={() => updateSettings({ printerFriendly: !settings.printerFriendly })}
-          className={`relative shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ember-500 focus:ring-offset-2 focus:ring-offset-charcoal-700 ${
-            settings.printerFriendly ? 'bg-ember-600' : 'bg-charcoal-500'
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-              settings.printerFriendly ? 'translate-x-5' : 'translate-x-0'
-            }`}
-          />
-        </button>
+        <Toggle
+          checked={settings.printerFriendly}
+          onToggle={() => updateSettings({ printerFriendly: !settings.printerFriendly })}
+        />
       </label>
+
+      <hr className="border-charcoal-600" />
+
+      <div>
+        <p className="text-charcoal-100 font-medium mb-1">Include Images</p>
+        <p className="text-charcoal-400 text-sm mb-4">
+          Control which image types are appended to generated PDFs. Applies globally across all recipes.
+        </p>
+        <div className="space-y-3">
+          {IMAGE_SLOTS.map((slot) => (
+            <label key={slot.key} className="flex items-center justify-between gap-4 cursor-pointer select-none">
+              <span className="text-charcoal-200 text-sm">{slot.label}</span>
+              <Toggle
+                checked={settings.pdfIncludeImages?.[slot.key] ?? true}
+                onToggle={() => toggleImageSlot(slot.key)}
+              />
+            </label>
+          ))}
+        </div>
+      </div>
     </Section>
   )
 }

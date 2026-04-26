@@ -9,10 +9,10 @@ import {
 } from '../utils/settingsStorage'
 import { applyThemeToDom } from '../utils/colourShades'
 
-const SERVER_KEYS = new Set<keyof AppSettings>(['logoBase64', 'logoLinkUrl', 'categories'])
+const SERVER_KEYS = new Set<keyof AppSettings>(['logoBase64', 'logoLinkUrl', 'categories', 'pdfIncludeImages'])
 
 function pickServer(s: AppSettings): ServerSettings {
-  return { logoBase64: s.logoBase64, logoLinkUrl: s.logoLinkUrl, categories: s.categories }
+  return { logoBase64: s.logoBase64, logoLinkUrl: s.logoLinkUrl, categories: s.categories, pdfIncludeImages: s.pdfIncludeImages }
 }
 
 function pickDevice(s: AppSettings): DeviceSettings {

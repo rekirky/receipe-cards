@@ -61,12 +61,13 @@ interface Props {
   themeColour: string
   categoryLabel: string
   printerFriendly?: boolean
+  pdfIncludeImages?: Record<string, boolean>
 }
 
-export default function RecipeCardPDF({ recipe, themeColour, categoryLabel, printerFriendly = false }: Props) {
+export default function RecipeCardPDF({ recipe, themeColour, categoryLabel, printerFriendly = false, pdfIncludeImages }: Props) {
   const styles = makeStyles(themeColour, printerFriendly)
   const imageSlots = recipe.images
-    ? IMAGE_SLOTS.filter((s) => recipe.images![s.key])
+    ? IMAGE_SLOTS.filter((s) => recipe.images![s.key] && (pdfIncludeImages?.[s.key] ?? true))
     : []
 
   return (

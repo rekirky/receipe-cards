@@ -11,6 +11,7 @@ export interface ServerSettings {
   logoBase64: string | null
   logoLinkUrl: string
   categories: CategoryDef[]
+  pdfIncludeImages: Record<string, boolean>
 }
 
 // Stored in localStorage — per device
@@ -22,10 +23,19 @@ export interface DeviceSettings {
 
 export interface AppSettings extends ServerSettings, DeviceSettings {}
 
+export const DEFAULT_PDF_INCLUDE_IMAGES: Record<string, boolean> = {
+  front: true,
+  back: true,
+  instructions: true,
+  nutritional: true,
+  additional: true,
+}
+
 export const DEFAULT_SERVER_SETTINGS: ServerSettings = {
   logoBase64: null,
   logoLinkUrl: '',
   categories: Object.entries(CATEGORY_LABELS).map(([id, label]) => ({ id, label })),
+  pdfIncludeImages: { ...DEFAULT_PDF_INCLUDE_IMAGES },
 }
 
 export const DEFAULT_DEVICE_SETTINGS: DeviceSettings = {

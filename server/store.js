@@ -123,6 +123,13 @@ const DEFAULT_SETTINGS = {
     { id: 'brine', label: 'Brine' },
     { id: 'seasoning', label: 'Seasoning' },
   ],
+  pdfIncludeImages: {
+    front: true,
+    back: true,
+    instructions: true,
+    nutritional: true,
+    additional: true,
+  },
 }
 
 function ensureDir() {
@@ -166,7 +173,11 @@ export function writeRecipes(recipes) {
 export function readSettings() {
   const stored = readJson('settings.json', null)
   if (stored === null) return DEFAULT_SETTINGS
-  return { ...DEFAULT_SETTINGS, ...stored }
+  return {
+    ...DEFAULT_SETTINGS,
+    ...stored,
+    pdfIncludeImages: { ...DEFAULT_SETTINGS.pdfIncludeImages, ...(stored.pdfIncludeImages ?? {}) },
+  }
 }
 
 export function writeSettings(settings) {

@@ -27,6 +27,7 @@ export default function RecipeDetail() {
         themeColour={settings.themeColour}
         categoryLabel={categoryLabels[recipe.category] ?? recipe.category}
         printerFriendly={settings.printerFriendly}
+        pdfIncludeImages={settings.pdfIncludeImages}
       />
     : <></>
 
@@ -40,10 +41,11 @@ export default function RecipeDetail() {
           themeColour={settings.themeColour}
           categoryLabel={categoryLabels[recipe.category] ?? recipe.category}
           printerFriendly={settings.printerFriendly}
+          pdfIncludeImages={settings.pdfIncludeImages}
         />
       )
     }
-  }, [recipe, settings.themeColour, settings.printerFriendly]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [recipe, settings.themeColour, settings.printerFriendly, settings.pdfIncludeImages]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (
